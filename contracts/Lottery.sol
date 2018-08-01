@@ -3,6 +3,7 @@ pragma solidity ^0.4.17;
 contract Lottery {
     address public manager;
     address[] public players;
+    address public winter;
     function  Lottery()public {
 //    constructor ()public {//新版本修改为这样
         manager = msg.sender;
@@ -25,6 +26,9 @@ contract Lottery {
         return address(this).balance;
         /* return this.balance; */
     }
+    function getWinter() public view returns (address) {
+        return winter;
+    }
 
     function getPlayerCount() public view returns (uint) {
         return players.length;
@@ -35,13 +39,12 @@ contract Lottery {
         return uint(keccak256(block.difficulty, now, players));
     }
     //你给别人钱，不需要调用payable
-    function pickWinnter() public onlyManagerCanCall returns (address) {
+    function pickWinnter() public onlyManagerCanCall {
         uint index = random() % players.length;
-        address winner = players[index];
+        winter = players[index];
         //初始数组
         players = new address[](0);
-        winner.transfer(getBalance());
-        return winner;
+        winter.transfer(getBalance());
     }
 
     function refund() public payable onlyManagerCanCall {
@@ -49,6 +52,8 @@ contract Lottery {
             players[i].transfer(1 ether);
         }
         players = new address[](0);
+        //TODO 清除winter   ====>winter = "0x00";?
+
     }
     modifier onlyManagerCanCall() {
         require(msg.sender == manager);

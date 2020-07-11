@@ -3,13 +3,13 @@ import {Message, Container, Icon, Card, Image, Statistic, Label, Button} from 's
 import web3 from './web3'
 import lottery from './lottery'
 
-
 class App extends Component {
     state = {
         manager: '',
         playercount: 0,
         balance: 0,
         showButton: 'none',
+        lotteryconut: 0,
         loading: false
     }
     //as same as
@@ -81,7 +81,30 @@ class App extends Component {
         this.setState({
             loading: false
         });
-        window.location.reload(true)
+        // lottery.events.UpdateEvent({}, ()=>{
+        //     console.log("---------------UpdateEvent logs");
+        //     }
+        // );
+        // lottery.events.UpdateEvent({}, async (error, event) => {
+        //         if (error) {
+        //             console.log("Delete Error:");
+        //             console.log(error);
+        //         }else{
+        //             console.log("result succses");
+        //         }
+        //     }
+        // );
+
+        // window.location.reload(true);
+        //let myEvent = lottery.UpdateEvent();
+        // myEvent.watch(function (err, result) {
+        //     if (err) {
+        //         console.log("Delete Error:");
+        //         console.log(err);
+        //     } else {
+        //         console.log("result succses");
+        //     }
+        // })
 
     };
 
@@ -90,6 +113,7 @@ class App extends Component {
         this.setState({
             manager: mg
         })
+
         const playercount = await lottery.methods.getPlayerCount().call();
         this.setState({
             playercount: playercount
@@ -108,6 +132,59 @@ class App extends Component {
                 showButton: 'none'
             })
         }
+        const lc = await lottery.methods.getMyLotteryCount(accounts[0]).call();
+        this.setState({
+            lotteryconut: lc
+        })
+        lottery.events.UpdateEvent({}, (err) => {
+            console.log("Event are as following:-------");
+            if (err) {
+                console.log("event Error:");
+                console.log("--------" + err);
+            } else {
+                console.log("event succses");
+            }
+
+            console.log("Event ending-------");
+        });
+
+        // lottery.events.UpdateEvent({}, ()=>{
+        //         console.log("---------------UpdateEvent logs");
+        //     }
+        // );
+        // var contract = new web3.eth.Contract(lottery.abi);
+        // lottery.events.UpdateEvent({}, (error, event) => {
+        //     console.log(event);
+        // })
+        //     .on('data', function (event) {
+        //         console.log("-------" + event); // same results as the optional callback above
+        //     })
+        //     .on('changed', function (event) {
+        //         console.log("-------changed");
+        //         // remove event from local database
+        //     })
+        //     .on('error', console.error);
+
+        // lottery.constructor().UpdateEvent().watch({},'',(err, result)=>{
+        // lottery.getPastEvents("UpdateEvent",(err, result)=>{
+        //     if (err) {
+        //         console.log("-------Delete Error:");
+        //         console.log(err);
+        //     } else {
+        //         console.log("-------result succses");
+        //     }
+        // });
+        // lottery.UpdateEvent((err, result)=>{
+        //     // result will contain various information
+        //     // including the argumets given to the Deposit
+        //     // call.
+        //         if (err) {
+        //             console.log("Delete Error:");
+        //             console.log(err);
+        //         } else {
+        //             console.log("result succses");
+        //         }
+        // });
     }
 
 
@@ -118,7 +195,7 @@ class App extends Component {
                 <br/>
 
                 <Card.Group>
-                    <Card>
+                    <Card style={{width: 350}}>
                         <Message info>
                             <Message.Header>诗和远方</Message.Header>
                             <p>梦想距离你很远？从这里开始</p>
@@ -126,17 +203,17 @@ class App extends Component {
                     </Card>
                 </Card.Group>
                 <Card.Group>
-                    <Card>
-                        <Image src='./images/odl.jpg'/>
+                    <Card style={{width: 350}}>
+                        <Image src='./images/lottery.jpg'/>
                         <Card.Content>
-                            <Card.Header>超级大乐透 奖池{this.state.balance}</Card.Header>
+                            <Card.Header>幸运彩</Card.Header>
                             <Card.Meta>
-                                <p>管理员地址</p>
-                                <Label>
+                                <p>开奖地址</p>
+                                <Label size='mini'>
                                     {this.state.manager}
                                 </Label>
                             </Card.Meta>
-                            <Card.Description>两元钱一个梦想，五百万一个回报</Card.Description>
+                            <Card.Description>一个ETH一个梦想,收获一份回报</Card.Description>
                         </Card.Content>
                         <Card.Content extra>
                             <a>
@@ -144,16 +221,20 @@ class App extends Component {
                                 {this.state.playercount}
                                 个彩民参与
                             </a>
+                            <Label size='mini' color='teal'>
+                                您已投 {this.state.lotteryconut} 注
+                            </Label>
+
                         </Card.Content>
                         <Card.Content extra>
-                            <Statistic color='orange' size='tiny'>
+                            <Statistic color='purple' size='mini'>
                                 <Statistic.Value>
                                     奖池： {this.state.balance} ETH
                                 </Statistic.Value>
                             </Statistic>
                         </Card.Content>
                         <Button animated='fade' loading={this.state.loading} onClick={this.handleEnter}
-                                disabled={this.state.loading}>
+                                disabled={this.state.loading} color='purple'>
                             <Button.Content visible>放飞梦想</Button.Content>
                             <Button.Content hidden>投注产生希望</Button.Content>
                         </Button>
